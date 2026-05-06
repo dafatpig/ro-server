@@ -32,9 +32,9 @@ h1 { text-align: center; font-size: 26px; font-weight: 700; background: linear-g
 .checkbox-item span:first-child { font-size: 15px; }
 .checkbox-item span:last-child { font-size: 14px; color: #aaa; }
 .checkbox-item.checked span:last-child { color: #fff; }
-.qty-btn { display: none; width: 26px; height: 26px; background: rgba(255,255,255,0.25); border: none; border-radius: 6px; color: #fff; font-size: 16px; cursor: pointer; margin-left: 8px; }
+.qty-btn { display: none; width: 32px; height: 32px; background: rgba(255,255,255,0.3); border: none; border-radius: 8px; color: #fff; font-size: 20px; cursor: pointer; margin-left: 4px; }
 .checkbox-item.checked .qty-btn { display: inline-block; }
-.qty-num { display: none; min-width: 20px; text-align: center; font-weight: bold; margin: 0 4px; }
+.qty-num { display: none; min-width: 26px; text-align: center; font-weight: bold; margin: 0 4px; font-size: 16px; }
 .checkbox-item.checked .qty-num { display: inline-block; }
 .total-box { text-align: center; font-size: 18px; font-weight: bold; margin: 16px 0; color: #ffd700; }
 input[type="text"] { width: 100%; padding: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 12px; font-size: 15px; margin-bottom: 12px; }
@@ -108,6 +108,7 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 .order-line { color: #4ade80; margin: 10px 0; }
 .btn-complete { padding: 8px 14px; background: #22c55e; color: white; border: none; border-radius: 8px; cursor: pointer; margin-right: 6px; }
 .btn-paid { padding: 8px 14px; background: #fbbf24; color: #1a1a2e; border: none; border-radius: 8px; cursor: pointer; margin-right: 6px; font-weight: 600; }
+.btn-paid-done { background: #666; color: #aaa; cursor: default; }
 .btn-delete { padding: 8px 14px; background: rgba(239,68,68,0.2); color: #fca5a5; border: 1px solid rgba(239,68,68,0.3); border-radius: 8px; cursor: pointer; }
 .order-card { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 14px; margin-bottom: 10px; border-radius: 12px; }
 .order-items { margin: 8px 0; }
@@ -123,25 +124,6 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 .pending-title { color: #fbbf24; }
 .history-title { color: #4ade80; }
 </style></head>
-<body>
-<div class="container">
-<h1>⚙️ RO管理後台</h1>
-<div class="toolbar">
-<button class="toolbar-btn active" onclick="showPending()">⏳ 待辦</button>
-<button class="toolbar-btn" onclick="showPaid()">💰 已收款</button>
-<button class="toolbar-btn" onclick="showDone()">✅ 歷史</button>
-<button class="toolbar-btn" onclick="showRatio()">💰 代拉比例</button>
-</div>
-<div class="ratio-section" id="ratio-section">
-<div style="font-size:16px;font-weight:600;color:#4ade80;margin-bottom:15px;">💰 代拉比例設置</div>
-<div class="ratio-grid">
-<div class="ratio-item"><label>0-1E：</label><input id="ratio-0-1"></div>
-<div class="ratio-item"><label>1-2E：</label><input id="ratio-1-2"></div>
-<div class="ratio-item"><label>2-3E：</label><input id="ratio-2-3"></div>
-<div class="ratio-item"><label>3-4E：</label><input id="ratio-3-4"></div>
-<div class="ratio-item"><label>4-5E：</label><input id="ratio-4-5"></div>
-<div class="ratio-item"><label>5-6E：</label><input id="ratio-5-6"></div>
-<div class="ratio-item"><label>6-7E：</label><input id="ratio-6-7"></div>
 <div class="toolbar">
 <button class="toolbar-btn active" onclick="showPending()">⏳ 待辦</button>
 <button class="toolbar-btn" onclick="showHistory()">📋 歷史</button>
@@ -160,10 +142,10 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 </div>
 </div>
 <script>
-async function loadOrders(){ const res=await fetch('/api/orders'); const data=await res.json(); const p=data.orders.filter(o=>!o.done); const h=data.orders.filter(o=>o.done); document.getElementById('stat-pending').textContent=p.length; const prices=data.prices||{}; document.getElementById('pending-orders').innerHTML=p.length?p.map(o=>render(o,prices)).join(''):'暫無待辦事項'; document.getElementById('history-orders').innerHTML=h.length?h.map(o=>render(o,prices)).join(''):'暫無歷史記錄'; }
-function render(o,prices){ let items=''; if(o.items&&o.items.length){ items='<div class="order-items">'+o.items.map(n=>'<span class="order-tag">'+n.split('-')[0]+'</span>').join('')+'</div>'; } let total=''; if(o.type=='副本'&&o.items){ let t=0; o.items.forEach(i=>t+=prices[i.split('-')[0]]|0); total='<span class="order-total">'+t+'元</span>'; } let btn=o.done?`<button class="btn-paid" onclick="togglePaid(${o.id},${o.paid?0:1})">${o.paid?'已收款':'未收款'}</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`:`<button class="btn-complete" onclick="completeOrder(${o.id})">✅ 完成</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`; return '<div class="order-card"><span class="order-type '+(o.type=='副本'?'dungeon':'buy')+'">'+(o.type=='副本'?'📦':'💰')+'</span> #'+o.id+' <span>'+o.time+'</span>'+total+'</div>'+items+'<div class="order-line">LINE: '+o.lineid+'</div><div class="order-btns">'+btn+'</div></div>'; }
+async function loadOrders(){ const res=await fetch('/api/orders'); const data=await res.json(); const p=data.orders.filter(o=>!o.done); const h=data.orders.filter(o=>o.done); p.sort((a,b)=>b.id-a.id); h.sort((a,b)=>b.id-a.id); document.getElementById('stat-pending').textContent=p.length; const prices=data.prices||{}; document.getElementById('pending-orders').innerHTML=p.length?p.map(o=>render(o,prices)).join(''):'暫無待辦事項'; document.getElementById('history-orders').innerHTML=h.length?h.map(o=>render(o,prices)).join(''):'暫無歷史記錄'; }
+function render(o,prices){ let items=''; if(o.items&&o.items.length){ items='<div class="order-items">'+o.items.map(n=>'<span class="order-tag">'+n.split('-')[0]+'</span>').join('')+'</div>'; } let total=''; if(o.type=='副本'&&o.items){ let t=0; o.items.forEach(i=>t+=prices[i.split('-')[0]]|0); total='<span class="order-total">'+t+'元</span>'; } let btn=o.done?`<button class="btn-paid ${o.paid?'btn-paid-done':''}" onclick="togglePaid(${o.id},${o.paid?0:1})" ${o.paid?'disabled':''}>${o.paid?'已收款':'未收款'}</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`:`<button class="btn-complete" onclick="completeOrder(${o.id})">✅ 完成</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`; return '<div class="order-card"><span class="order-type '+(o.type=='副本'?'dungeon':'buy')+'">'+(o.type=='副本'?'📦':'💰')+'</span> #'+o.id+' <span>'+o.time+'</span>'+total+'</div>'+items+'<div class="order-line">LINE: '+o.lineid+'</div><div class="order-btns">'+btn+'</div></div>'; }
 async function completeOrder(id){ await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'complete'})}); loadOrders(); }
-async function togglePaid(id,val){ await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:val?'paid':'unpaid'})}); loadOrders(); }
+async function togglePaid(id,val){ if(val===0)return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:val?'paid':'unpaid'})}); loadOrders(); }
 async function deleteOrder(id){ if(!confirm('確定？'))return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'delete'})}); loadOrders(); }
 function showPending(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active'); document.getElementById('stats').style.display='flex'; document.getElementById('pending-section').style.display='block'; document.getElementById('history-section').style.display='none'; loadOrders(); }
 function showHistory(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active'); document.getElementById('stats').style.display='none'; document.getElementById('pending-section').style.display='none'; document.getElementById('history-section').style.display='block'; loadOrders(); }
