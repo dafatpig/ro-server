@@ -72,6 +72,7 @@ input[type="file"] { width: 100%; padding: 12px; background: rgba(255,255,255,0.
 <div class="ratio-grid" id="ratio-grid"></div>
 <input type="text" id="lineid2" placeholder="LINE ID（會馬上聯係您）" style="margin-top:12px;">
 <input type="file" id="screenshot" accept="image/*">
+<p style="color:#888;font-size:13px;margin-bottom:8px;">上傳需要代拉的物品截圖即可</p>
 <button class="btn" onclick="submitBuy()">🚀 提交訂單</button>
 </div>
 </div>
@@ -124,6 +125,9 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 .pending-title { color: #fbbf24; }
 .history-title { color: #4ade80; }
 </style></head>
+<body>
+<div class="container">
+<h1>⚙️ RO管理後台</h1>
 <div class="toolbar">
 <button class="toolbar-btn active" onclick="showPending()">⏳ 待辦</button>
 <button class="toolbar-btn" onclick="showHistory()">📋 歷史</button>
@@ -131,6 +135,22 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 </div>
 <div class="stats" id="stats">
 <div class="stat-item stat-pending"><div class="stat-num" id="stat-pending">0</div><div>待辦事項</div></div>
+</div>
+<div id="ratio-section" style="display:none;">
+<h2 class="section-title">💰 代拉比例設置</h2>
+<div class="ratio-grid">
+<div class="ratio-item"><label>0-1E：</label><input id="ratio-0-1"></div>
+<div class="ratio-item"><label>1-2E：</label><input id="ratio-1-2"></div>
+<div class="ratio-item"><label>2-3E：</label><input id="ratio-2-3"></div>
+<div class="ratio-item"><label>3-4E：</label><input id="ratio-3-4"></div>
+<div class="ratio-item"><label>4-5E：</label><input id="ratio-4-5"></div>
+<div class="ratio-item"><label>5-6E：</label><input id="ratio-5-6"></div>
+<div class="ratio-item"><label>6-7E：</label><input id="ratio-6-7"></div>
+<div class="ratio-item"><label>7-8E：</label><input id="ratio-7-8"></div>
+<div class="ratio-item"><label>8-9E：</label><input id="ratio-8-9"></div>
+<div class="ratio-item"><label>9-10E：</label><input id="ratio-9-10"></div>
+</div>
+<button class="btn-ratio" onclick="saveRatio()">💾 提交更改</button>
 </div>
 <div id="pending-section">
 <h2 class="section-title">📋 待辦事項</h2>
@@ -140,12 +160,8 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 <h2 class="section-title">📋 歷史記錄</h2>
 <div id="history-orders"></div>
 </div>
-</div>
-<script>
-async function loadOrders(){ const res=await fetch('/api/orders'); const data=await res.json(); const p=data.orders.filter(o=>!o.done); const h=data.orders.filter(o=>o.done); p.sort((a,b)=>b.id-a.id); h.sort((a,b)=>b.id-a.id); document.getElementById('stat-pending').textContent=p.length; const prices=data.prices||{}; document.getElementById('pending-orders').innerHTML=p.length?p.map(o=>render(o,prices)).join(''):'暫無待辦事項'; document.getElementById('history-orders').innerHTML=h.length?h.map(o=>render(o,prices)).join(''):'暫無歷史記錄'; }
-function render(o,prices){ let items=''; if(o.items&&o.items.length){ items='<div class="order-items">'+o.items.map(n=>'<span class="order-tag">'+n.split('-')[0]+'</span>').join('')+'</div>'; } let total=''; if(o.type=='副本'&&o.items){ let t=0; o.items.forEach(i=>t+=prices[i.split('-')[0]]|0); total='<span class="order-total">'+t+'元</span>'; } let btn=o.done?`<button class="btn-paid ${o.paid?'btn-paid-done':''}" onclick="togglePaid(${o.id},${o.paid?0:1})" ${o.paid?'disabled':''}>${o.paid?'已收款':'未收款'}</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`:`<button class="btn-complete" onclick="completeOrder(${o.id})">✅ 完成</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`; return '<div class="order-card"><span class="order-type '+(o.type=='副本'?'dungeon':'buy')+'">'+(o.type=='副本'?'📦':'💰')+'</span> #'+o.id+' <span>'+o.time+'</span>'+total+'</div>'+items+'<div class="order-line">LINE: '+o.lineid+'</div><div class="order-btns">'+btn+'</div></div>'; }
-async function completeOrder(id){ await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'complete'})}); loadOrders(); }
-async function togglePaid(id,val){ if(val===0)return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:val?'paid':'unpaid'})}); loadOrders(); }
+
+ADMIN_HTML = ADMIN_HTML.replace('{{ADMIN_CONTENT}}', '''
 async function deleteOrder(id){ if(!confirm('確定？'))return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'delete'})}); loadOrders(); }
 function showPending(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active'); document.getElementById('stats').style.display='flex'; document.getElementById('pending-section').style.display='block'; document.getElementById('history-section').style.display='none'; loadOrders(); }
 function showHistory(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active'); document.getElementById('stats').style.display='none'; document.getElementById('pending-section').style.display='none'; document.getElementById('history-section').style.display='block'; loadOrders(); }
