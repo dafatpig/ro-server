@@ -2,16 +2,10 @@
 """RO專業帶本代拉"""
 
 from flask import Flask, request, jsonify
-import json
 from datetime import datetime
 
 app = Flask(__name__)
 app.config['JSON_AS_ASCII'] = False
-
-orders = []
-ratio = {'0-1':'','1-2':'','2-3':'','3-4':'','4-5':'','5-6':'','6-7':'','7-8':'','8-9':'','9-10':''}
-order_id = 1
-PRICES = {'飛空艇英靈-500':500,'博物島英靈-300':300,'迷蹤島英靈-100':100,'星座塔Ⅵ-800':800,'混亂噩夢-800':800,'12人英靈-100':100,'神諭11-100':100}app.config['JSON_AS_ASCII'] = False
 
 orders = []
 ratio = {'0-1':'','1-2':'','2-3':'','3-4':'','4-5':'','5-6':'','6-7':'','7-8':'','8-9':'','9-10':''}
@@ -83,7 +77,7 @@ input[type="file"] { width: 100%; padding: 12px; background: rgba(255,255,255,0.
 </div>
 <script>
 const PRICES={'飛空艇英靈':500,'博物島英靈':300,'迷蹤島英靈':100,'星座塔Ⅵ':800,'混亂噩夢':800,'12人英靈':100,'神諭11':100};
-function switchTab(btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(btn.dataset.tab).classList.add('active');btn.classList.add('active');if(btn.dataset.tab==='代拉')loadRatio();}
+function switchTab(btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(btn.dataset.tab).classList.add('active');btn.classList.add('active');if(btn.dataset.tab==='���拉')loadRatio();}
 function toggle(item){item.classList.toggle('checked');const q=item.querySelector('.qty-num');if(item.classList.contains('checked')&&q.textContent==='0')q.textContent='1';updateTotal();}
 function qty(btn,delta){const item=btn.closest('.checkbox-item');const q=item.querySelector('.qty-num');let n=parseInt(q.textContent)+delta;if(n<0)n=0;if(n>10)n=10;q.textContent=n;if(n>0)item.classList.add('checked');else item.classList.remove('checked');updateTotal();}
 function updateTotal(){let t=0;document.querySelectorAll('#副本 .checkbox-item.checked').forEach(i=>{const name=i.querySelector('span:first-child').textContent;t+=(PRICES[name]||0)*parseInt(i.querySelector('.qty-num').textContent);});document.getElementById('total-amount').textContent=t;}
@@ -127,8 +121,6 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 .ratio-item { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; }
 .ratio-item input { width: 80px; padding: 6px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 6px; }
 .btn-ratio { width: 100%; padding: 14px; background: #e6b800; color: #1a1a2e; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 15px; }
-.pending-title { color: #fbbf24; }
-.history-title { color: #4ade80; }
 </style></head>
 <body>
 <div class="container">
@@ -165,8 +157,11 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 <h2 class="section-title">📋 歷史記錄</h2>
 <div id="history-orders"></div>
 </div>
-
-ADMIN_HTML = ADMIN_HTML.replace('{{ADMIN_CONTENT}}', '''
+<script>
+async function loadOrders(){ const res=await fetch('/api/orders'); const data=await res.json(); const p=data.orders.filter(o=>!o.done); const h=data.orders.filter(o=>o.done); p.sort((a,b)=>b.id-a.id); h.sort((a,b)=>b.id-a.id); document.getElementById('stat-pending').textContent=p.length; const prices=data.prices||{}; document.getElementById('pending-orders').innerHTML=p.length?p.map(o=>render(o,prices)).join(''):'暫無待辦事項'; document.getElementById('history-orders').innerHTML=h.length?h.map(o=>render(o,prices)).join(''):'暫無歷史記錄'; }
+function render(o,prices){ let items=''; if(o.items&&o.items.length){ items='<div class="order-items">'+o.items.map(n=>'<span class="order-tag">'+n.split('-')[0]+'</span>').join('')+'</div>'; } let total=''; if(o.type=='副本'&&o.items){ let t=0; o.items.forEach(i=>t+=prices[i.split('-')[0]]|0); total='<span class="order-total">'+t+'元</span>'; } let btn=o.done?`<button class="btn-paid ${o.paid?'btn-paid-done':''}" onclick="togglePaid(${o.id},${o.paid?0:1})" ${o.paid?'disabled':''}>${o.paid?'已收款':'未收款'}</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`:`<button class="btn-complete" onclick="completeOrder(${o.id})">✅ 完成</button><button class="btn-delete" onclick="deleteOrder(${o.id})">🗑️</button>`; return '<div class="order-card"><span class="order-type '+(o.type=='副本'?'dungeon':'buy')+'">'+(o.type=='副本'?'📦':'💰')+'</span> #'+o.id+' <span>'+o.time+'</span>'+total+'</div>'+items+'<div class="order-line">LINE: '+o.lineid+'</div><div class="order-btns">'+btn+'</div></div>'; }
+async function completeOrder(id){ await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'complete'})}); loadOrders(); }
+async function togglePaid(id,val){ if(val===0)return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:val?'paid':'unpaid'})}); loadOrders(); }
 async function deleteOrder(id){ if(!confirm('確定？'))return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'delete'})}); loadOrders(); }
 function showPending(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active'); document.getElementById('stats').style.display='flex'; document.getElementById('pending-section').style.display='block'; document.getElementById('history-section').style.display='none'; loadOrders(); }
 function showHistory(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active'));event.target.classList.add('active'); document.getElementById('stats').style.display='none'; document.getElementById('pending-section').style.display='none'; document.getElementById('history-section').style.display='block'; loadOrders(); }
