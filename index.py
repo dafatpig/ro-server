@@ -15,72 +15,75 @@ PRICES = {'飛空艇英靈-500':500,'博物島英靈-300':300,'迷蹤島英靈-1
 
 CLIENT_HTML = '''<!DOCTYPE html>
 <html lang="zh-TW">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RO專業帶本代拉</title>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>RO專業帶本</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(180deg, #1e3a5f 0%, #2d4a6f 30%, #1e3a5f 70%, #0f2744 100%); color: #fff; min-height: 100vh; }
-.container { max-width: 800px; margin: 0 auto; padding: 30px 20px; }
-h1 { text-align: center; font-size: 32px; font-weight: 700; background: linear-gradient(90deg, #ffd700, #e6b800, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-.subtitle { text-align: center; color: #888; margin-bottom: 30px; }
-.tabs { display: flex; gap: 10px; margin-bottom: 25px; }
-.tab { flex: 1; padding: 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; cursor: pointer; font-size: 17px; font-weight: 600; border-radius: 16px; text-align: center; }
+body { font-family: 'Noto Sans TC', sans-serif; background: linear-gradient(180deg, #1e3a5f 0%, #2d4a6f 30%, #1e3a5f 70%, #0f2744 100%); color: #fff; min-height: 100vh; padding: 20px; }
+.container { max-width: 500px; margin: 0 auto; }
+h1 { text-align: center; font-size: 26px; font-weight: 700; background: linear-gradient(90deg, #ffd700, #e6b800, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 6px; }
+.subtitle { text-align: center; color: #888; font-size: 14px; margin-bottom: 20px; }
+.tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+.tab { flex: 1; padding: 14px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #aaa; cursor: pointer; font-size: 15px; font-weight: 600; border-radius: 12px; text-align: center; }
 .tab.active { background: linear-gradient(135deg, #e6b800, #ffd700); color: #1a1a2e; }
 .panel { display: none; }
 .panel.active { display: block; }
-.checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; margin-bottom: 8px; cursor: pointer; }
-.checkbox-item.checked { background: linear-gradient(135deg, #b8860b, #daa520); border-color: #ffd700; }
-.qty-box { display: flex; align-items: center; gap: 6px; margin-left: 8px; }
-.qty-box button { width: 24px; height: 24px; background: rgba(255,255,255,0.2); border: none; border-radius: 4px; color: #fff; font-size: 14px; cursor: pointer; }
-.qty-box .qty-num { min-width: 18px; text-align: center; font-weight: bold; font-size: 14px; }
-.total-box { text-align: center; font-size: 16px; font-weight: bold; margin: 12px 0; color: #ffd700; }
-input { width: 100%; padding: 16px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 14px; font-size: 16px; margin-bottom: 15px; }
-.btn { width: 100%; padding: 18px; background: linear-gradient(135deg, #e6b800, #ffd700); color: #1a1a2e; border: none; border-radius: 14px; font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 10px; }
-.ratio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
-.ratio-item { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(255,255,255,0.05); border-radius: 8px; }
+.checkbox-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px; cursor: pointer; transition: all 0.2s; }
+.checkbox-item.checked { background: linear-gradient(135deg, #b8860b, #daa520); border-color: #ffd700; box-shadow: 0 4px 15px rgba(255,215,0,0.3); }
+.checkbox-item span:first-child { font-size: 15px; }
+.checkbox-item span:last-child { font-size: 14px; color: #aaa; }
+.checkbox-item.checked span:last-child { color: #fff; }
+.qty-btn { display: none; width: 26px; height: 26px; background: rgba(255,255,255,0.25); border: none; border-radius: 6px; color: #fff; font-size: 16px; cursor: pointer; margin-left: 8px; }
+.checkbox-item.checked .qty-btn { display: inline-block; }
+.qty-num { display: none; min-width: 20px; text-align: center; font-weight: bold; margin: 0 4px; }
+.checkbox-item.checked .qty-num { display: inline-block; }
+.total-box { text-align: center; font-size: 18px; font-weight: bold; margin: 16px 0; color: #ffd700; }
+input[type="text"] { width: 100%; padding: 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; border-radius: 12px; font-size: 15px; margin-bottom: 12px; }
+input[type="file"] { width: 100%; padding: 12px; background: rgba(255,255,255,0.08); border: 1px dashed rgba(255,255,255,0.3); border-radius: 12px; color: #aaa; margin-bottom: 12px; }
+.btn { width: 100%; padding: 16px; background: linear-gradient(135deg, #e6b800, #ffd700); color: #1a1a2e; border: none; border-radius: 12px; font-size: 16px; font-weight: 700; cursor: pointer; }
+.btn:active { transform: scale(0.98); }
+.ratio-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.ratio-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: rgba(255,255,255,0.05); border-radius: 10px; }
+.ratio-item span:first-child { color: #aaa; font-size: 14px; }
 .ratio-item span:last-child { color: #4ade80; font-weight: 600; }
 </style></head>
 <body>
 <div class="container">
-<h1>⚔️ RO專業帶本代拉</h1>
+<h1>⚔️ RO專業帶本</h1>
 <p class="subtitle">仙境傳說RO守護永恆的愛 Classic</p>
 <div class="tabs">
-<button class="tab active" data-tab="副本" onclick="switchTab(this)">📦 舒心躺本</button>
-<button class="tab" data-tab="代拉" onclick="switchTab(this)">💰 代拉貨</button>
+<button class="tab active" data-tab="副本" onclick="switchTab(this)">📦 躺本</button>
+<button class="tab" data-tab="代拉" onclick="switchTab(this)">💰 代拉</button>
 </div>
 <div id="副本" class="panel active">
-<form onsubmit="submitOrder(event)">
 <div class="checkbox-group">
-<label class="checkbox-item" onclick="toggle(this)"><span>飛空艇英靈</span><span>NT$500</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="飛空艇英靈-500"></label>
-<label class="checkbox-item" onclick="toggle(this)"><span>博物島英靈</span><span>NT$300</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="博物島英靈-300"></label>
-<label class="checkbox-item" onclick="toggle(this)"><span>迷蹤島英靈</span><span>NT$100</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="迷蹤島英靈-100"></label>
-<label class="checkbox-item" onclick="toggle(this)"><span>星座塔Ⅵ</span><span>NT$800</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="星座塔Ⅵ-800"></label>
-<label class="checkbox-item" onclick="toggle(this)"><span>混亂噩夢</span><span>NT$800</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="混亂噩夢-800"></label>
-<label class="checkbox-item" onclick="toggle(this)"><span>12人英靈</span><span>NT$100</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="12人英靈-100"></label>
-<label class="checkbox-item" onclick="toggle(this)"><span>神諭11</span><span>NT$100</span><span class="qty-box"><button onclick="event.stopPropagation();qty(this,-1)">-</button><span class="qty-num">0</span><button onclick="event.stopPropagation();qty(this,1)">+</button></span><input type="hidden" name="item" value="神諭11-100"></label>
+<div class="checkbox-item" onclick="toggle(this)"><span>飛空艇英靈</span><span>NT500</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
+<div class="checkbox-item" onclick="toggle(this)"><span>博物島英靈</span><span>NT300</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
+<div class="checkbox-item" onclick="toggle(this)"><span>迷蹤島英靈</span><span>NT100</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
+<div class="checkbox-item" onclick="toggle(this)"><span>星座塔Ⅵ</span><span>NT800</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
+<div class="checkbox-item" onclick="toggle(this)"><span>混亂噩夢</span><span>NT800</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
+<div class="checkbox-item" onclick="toggle(this)"><span>12人英靈</span><span>NT100</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
+<div class="checkbox-item" onclick="toggle(this)"><span>神諭11</span><span>NT100</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,-1)">-</span><span class="qty-num">0</span><span class="qty-btn" onclick="event.stopPropagation();qty(this,1)">+</span></div>
 </div>
 <div class="total-box">總計: <span id="total-amount">0</span> 元</div>
-<input type="text" name="lineid" placeholder="LINE ID（會馬上聯係您）" required>
-<button type="submit" class="btn">🚀 提交訂單</button>
-</form>
+<input type="text" id="lineid" placeholder="LINE ID（會馬上聯係您）">
+<button class="btn" onclick="submitOrder()">🚀 提交訂單</button>
 </div>
 <div id="代拉" class="panel">
-<form onsubmit="submitBuy(event)">
 <div class="ratio-grid" id="ratio-grid"></div>
-<input type="text" name="lineid" placeholder="LINE ID（會馬上聯係您）" required>
-<button type="submit" class="btn">🚀 提交訂單</button>
-</form>
+<input type="text" id="lineid2" placeholder="LINE ID（會馬上聯係您）" style="margin-top:12px;">
+<input type="file" id="screenshot" accept="image/*">
+<button class="btn" onclick="submitBuy()">🚀 提交訂單</button>
 </div>
 </div>
 <script>
-const PRICES={'飛空艇英靈-500':500,'博物島英靈-300':300,'迷蹤島英靈-100':100,'星座塔Ⅵ-800':800,'混亂噩夢-800':800,'12人英靈-100':100,'神諭11-100':100};
+const PRICES={'飛空艇英靈':500,'博物島英靈':300,'迷蹤島英靈':100,'星座塔Ⅵ':800,'混亂噩夢':800,'12人英靈':100,'神諭11':100};
 function switchTab(btn){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));document.getElementById(btn.dataset.tab).classList.add('active');btn.classList.add('active');if(btn.dataset.tab==='代拉')loadRatio();}
 function toggle(item){item.classList.toggle('checked');const q=item.querySelector('.qty-num');if(item.classList.contains('checked')&&q.textContent==='0')q.textContent='1';updateTotal();}
 function qty(btn,delta){const item=btn.closest('.checkbox-item');const q=item.querySelector('.qty-num');let n=parseInt(q.textContent)+delta;if(n<0)n=0;if(n>10)n=10;q.textContent=n;if(n>0)item.classList.add('checked');else item.classList.remove('checked');updateTotal();}
-function updateTotal(){let t=0;document.querySelectorAll('#副本 .checkbox-item.checked input').forEach(i=>{const qty=parseInt(i.closest('.checkbox-item').querySelector('.qty-num').textContent)||0;t+=(PRICES[i.value]||0)*qty;});document.getElementById('total-amount').textContent=t;}
-async function loadRatio(){const r=await fetch('/api/ratio');const d=await r.json();document.getElementById('ratio-grid').innerHTML=[0,1,2,3,4,5,6,7,8,9].map(i=>`<div class="ratio-item"><span>${i}-${i+1}E</span><span class="ratio-val" data-key="${i}-${i+1}">${d[i+'-'+(i+1)]||'--'}</span></div>`).join('');}
-async function submitOrder(e){e.preventDefault();const items=[];document.querySelectorAll('#副本 .checkbox-item.checked input').forEach(i=>{const qty=parseInt(i.closest('.checkbox-item').querySelector('.qty-num').textContent)||0;for(let n=0;n<qty;n++)items.push(i.value);});if(items.length===0)return alert('請選擇至少一個副本');await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'副本',items,lineid:e.target.lineid.value})});alert('✅ 提交成功！');e.target.reset();document.querySelectorAll('.qty-num').forEach(q=>q.textContent='0');document.querySelectorAll('.checkbox-item').forEach(i=>i.classList.remove('checked'));updateTotal();}
-async function submitBuy(e){e.preventDefault();await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'代拉',items:[],lineid:e.target.lineid.value})});alert('✅ 提交成功！');e.target.reset();}
+function updateTotal(){let t=0;document.querySelectorAll('#副本 .checkbox-item.checked').forEach(i=>{const name=i.querySelector('span:first-child').textContent;t+=(PRICES[name]||0)*parseInt(i.querySelector('.qty-num').textContent);});document.getElementById('total-amount').textContent=t;}
+async function loadRatio(){const r=await fetch('/api/ratio');const d=await r.json();const keys=['0-1','1-2','2-3','3-4','4-5','5-6','6-7','7-8','8-9','9-10'];document.getElementById('ratio-grid').innerHTML=keys.map(k=>`<div class="ratio-item"><span>${k}E</span><span>${d[k]||'--'}</span></div>`).join('');}
+async function submitOrder(){const items=[];document.querySelectorAll('#副本 .checkbox-item.checked').forEach(i=>{const name=i.querySelector('span:first-child').textContent;const qty=parseInt(i.querySelector('.qty-num').textContent)||0;for(let n=0;n<qty;n++)items.push(name+'-'+PRICES[name]);});const lineid=document.getElementById('lineid').value.trim();if(!lineid)return alert('請輸入LINE ID');if(items.length===0)return alert('請選擇至少一個副本');await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'副本',items,lineid})});alert('✅ 提交成功！');document.querySelectorAll('.checkbox-item').forEach(i=>i.classList.remove('checked'));document.querySelectorAll('.qty-num').forEach(q=>q.textContent='0');document.getElementById('lineid').value='';updateTotal();}
+async function submitBuy(){const lineid=document.getElementById('lineid2').value.trim();if(!lineid)return alert('請輸入LINE ID');await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({type:'代拉',items:[],lineid})});alert('✅ 提交成功！');document.getElementById('lineid2').value='';}
 </script>
 </body>
 </html>'''
