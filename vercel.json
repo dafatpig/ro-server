@@ -2,12 +2,7 @@
   "builds": [
     { "src": "index.py", "use": "@vercel/python" }
   ],
-  "routes": [
-    { "src": "/api/orders", "dest": "/index.py" },
-    { "src": "/api/ratio", "dest": "/index.py" },
-    { "src": "/api/order", "dest": "/index.py" },
-    { "src": "/api/action", "dest": "/index.py" },
-    { "src": "/admin", "dest": "/index.py" },
-    { "src": "/(.*)", "dest": "/index.py" }
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.py" }
   ]
 }
