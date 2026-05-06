@@ -150,8 +150,8 @@ h1 { text-align: center; font-size: 28px; font-weight: 700; color: #4ade80; marg
 </div>
 </div>
 <script>
-async function loadOrders(){ const res=await fetch('/api/orders'); const data=await res.json(); const p=data.orders.filter(o=>!o.done); const d=data.orders.filter(o=>o.done); document.getElementById('stat-pending').textContent=p.length; document.getElementById('stat-done').textContent=d.length; document.getElementById('pending-orders').innerHTML=p.length?p.map(o=>render(o)).join(''):'暫無待辦事項'; document.getElementById('done-orders').innerHTML=d.length?d.map(o=>render(o)).join(''):'暫無歷史記錄'; }
-function render(o){ let items=''; if(o.items&&o.items.length){ items='<div style="margin:10px 0;">'+o.items.map(n=>'<span class="order-tag">'+n.split('-')[0]+'</span>').join('')+'</div>'; } let total=''; if(o.type=='副本'&&o.items){ let t=0; o.items.forEach(i=>t+=PRICES[i]||0); total='<span class="order-total">NT$'+t+'</span>'; } let btns=!o.done?'<button class="btn-complete" onclick="completeOrder('+o.id+')">✅ 完成</button><button class="btn-delete" onclick="deleteOrder('+o.id+')">🗑️</button>':'<button class="btn-delete" onclick="deleteOrder('+o.id+')">🗑️</button>'; return '<div class="order-card"><span class="order-type '+(o.type=='副本'?'dungeon':'buy')+'">'+(o.type=='副本'?'📦 副本':'💰 代拉')+'</span><span>#'+o.id+'</span><span>'+o.time+'</span>'+total+'</div>'+items+'<div class="order-line">LINE: '+o.lineid+'</div><div>'+btns+'</div></div>'; }
+async function loadOrders(){ const res=await fetch('/api/orders'); const data=await res.json(); const p=data.orders.filter(o=>!o.done); const d=data.orders.filter(o=>o.done); document.getElementById('stat-pending').textContent=p.length; document.getElementById('stat-done').textContent=d.length; const prices=data.prices||{}; document.getElementById('pending-orders').innerHTML=p.length?p.map(o=>render(o,prices)).join(''):'暫無待辦事項'; document.getElementById('done-orders').innerHTML=d.length?d.map(o=>render(o,prices)).join(''):'暫無歷史記錄'; }
+function render(o,prices){ let items=''; if(o.items&&o.items.length){ items='<div style="margin:10px 0;">'+o.items.map(n=>{ const price=prices[n.split('-')[0]]||0; return '<span class="order-tag">'+n.split('-')[0]+(price?' NT$'+price:'')+'</span>'}).join('')+'</div>'; } let total=''; if(o.type=='副本'&&o.items){ let t=0; o.items.forEach(i=>t+=prices[i.split('-')[0]]||0); total='<span class="order-total">NT$'+t+'</span>'; } let btns=!o.done?'<button class="btn-complete" onclick="completeOrder('+o.id+')">✅ 完成</button><button class="btn-delete" onclick="deleteOrder('+o.id+')">🗑️</button>':'<button class="btn-delete" onclick="deleteOrder('+o.id+')">🗑️</button>'; return '<div class="order-card"><span class="order-type '+(o.type=='副本'?'dungeon':'buy')+'">'+(o.type=='副本'?'📦 副本':'💰 代拉')+'</span><span>#'+o.id+'</span><span>'+o.time+'</span>'+total+'</div>'+items+'<div class="order-line">LINE: '+o.lineid+'</div><div>'+btns+'</div></div>'; }
 async function completeOrder(id){ await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'complete'})}); loadOrders(); }
 async function deleteOrder(id){ if(!confirm('確定？'))return; await fetch('/api/action',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,action:'delete'})}); loadOrders(); }
 function showPending(){ document.querySelectorAll('.toolbar-btn').forEach(b=>b.classList.remove('active')); event.target.classList.add('active'); document.getElementById('ratio-section').style.display='none'; document.getElementById('stats').style.display='flex'; document.getElementById('pending-section').style.display='block'; document.getElementById('done-section').style.display='none'; loadOrders(); }
@@ -174,7 +174,7 @@ def admin():
 
 @app.route('/api/orders')
 def api_orders():
-    return jsonify({'orders': orders})
+    return jsonify({'orders': orders, 'prices': PRICES})
 
 @app.route('/api/ratio', methods=['GET'])
 def api_ratio():
